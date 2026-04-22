@@ -131,8 +131,21 @@ def create_prices(watch_remnants, offer_ids):
 
 
 def price_conversion(price: str) -> str:
-    """Преобразовать цену. Пример: 5'990.00 руб. -> 5990"""
-    return re.sub("[^0-9]", "", price.split(".")[0])
+    """Преобразовать цену. Пример: 5'990.00 руб. -> 5990.
+
+    Args:
+        price (str): Формат цены который нужно преобразовать.
+
+    Returns:
+        str: Выходной формат цены.
+
+    Examples:
+        >>> price_conversion('5'990.00 руб.')
+        5900
+        >>> price_conversion('some_price')
+        ''
+    """
+    return re.sub("[^0-9]", "", price.split(".")[0])    
 
 
 def divide(lst: list, n: int):
@@ -183,3 +196,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
