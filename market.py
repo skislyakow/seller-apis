@@ -11,6 +11,21 @@ logger = logging.getLogger(__file__)
 
 
 def get_product_list(page, campaign_id, access_token):
+    """Получить список товаров магазина Яндекс Маркета.
+    Args:
+        page (str): Токен страницы для пагинации, по умолчанию ''.
+        campaign_id (str): Идентификатор кампании (магазина) продавца.
+        access_token (str): API-токен Яндекс Маркета.
+    Returns:
+        list: Список ассортимента с Яндекс Маркета.
+    Examples:
+        >>> get_product_list('', '123', 'token')
+        {'offerMappingEntries': [...], 'paging': {'nextPageToken': '...'}}
+        >>> get_product_list('', 'invalid', 'token')
+        Traceback (most recent call last):
+        ...
+        requests.exceptions.HTTPError: 401 Client Error: Unauthorized
+    """
     endpoint_url = "https://api.partner.market.yandex.ru/"
     headers = {
         "Content-Type": "application/json",
@@ -39,6 +54,12 @@ def update_stocks(stocks, campaign_id, access_token):
 
     Returns:
         list: Ответ сервера о выполнении операции.
+
+    Examples:
+        >>> update_stocks([{"sku": "123", "items": [{"count": 10, "type": "FIT"}]}], '123', 'token')
+        {'code': 0, 'message': ''}
+        >>> update_stocks([], '123', 'token')
+        {'code': 400, 'message': 'Stocks not passed'}
     """
     endpoint_url = "https://api.partner.market.yandex.ru/"
     headers = {
@@ -56,6 +77,24 @@ def update_stocks(stocks, campaign_id, access_token):
 
 
 def update_price(prices, campaign_id, access_token):
+    """Обновление прайс-листа на сайте Яндекс Маркет.
+
+    Args:
+        prices (list): сформированный прайс-лист.
+        campaign_id (str): идентификатор кампании (магазина) продавца.
+        access_token (str): API-Key-токен Яндекс Маркета.
+
+    Returns:
+        list: Ответ сервера о выполнении операции.
+
+    Examples:
+        >>> update_price([{"id": "123", "price": {"value": 5900, "currencyId": "RUR"}}], '123', 'token')
+        {'code': 0, 'items': [...]}
+        >>> update_price([], 'invalid', 'token')
+        Traceback (most recent call last):
+        ...
+        requests.exceptions.HTTPError: 401 Client Error: Unauthorized
+    """
     endpoint_url = "https://api.partner.market.yandex.ru/"
     headers = {
         "Content-Type": "application/json",
@@ -80,6 +119,14 @@ def get_offer_ids(campaign_id, market_token):
 
     Returns:
         list: список артикулов товаров SKU Яндекс Маркета.
+
+    Examples:
+        >>> get_offer_ids('123', 'token')
+        ['123', '456', ...]
+        >>> get_offer_ids('invalid', 'token')
+        Traceback (most recent call last):
+        ...
+        requests.exceptions.HTTPError: 401 Client Error: Unauthorized
     """
     page = ""
     product_list = []
@@ -105,6 +152,14 @@ def create_stocks(watch_remnants, offer_ids, warehouse_id):
 
     Returns:
         list: сформированный ассортимент товаров.
+
+    Examples:
+        >>> create_stocks([{'Код': '123', 'Количество': '>10'}], ['123'], 'wh_123')
+        [{'sku': '123', 'warehouseId': 'wh_123', 'items': [{'count': 100, ...}]}]
+        >>> create_stocks(None, ['123'], 'wh_123')
+        Traceback (most recent call last):
+        ...
+        TypeError: 'NoneType' object is not iterable
     """
     # Уберем то, что не загружено в market
     stocks = list()
@@ -151,6 +206,23 @@ def create_stocks(watch_remnants, offer_ids, warehouse_id):
 
 
 def create_prices(watch_remnants, offer_ids):
+    """Подготовка прайс-листа.
+
+    Args:
+        watch_remnants (list): список остатков часов.
+        offer_ids (list): список артикулов товаров магазина озон.
+
+    Returns:
+        list: Подготовленный для дальнейшего формирования прайс-лист.
+
+    Examples:
+        >>> create_prices([{'Код': '123', 'Цена': "5'990.00 руб."}], ['123'])
+        [{'id': '123', 'price': {'value': 5990, 'currencyId': 'RUR'}}]
+        >>> create_prices(None, ['123'])
+        Traceback (most recent call last):
+        ...
+        TypeError: 'NoneType' object is not iterable
+    """
     prices = []
     for watch in watch_remnants:
         if str(watch.get("Код")) in offer_ids:
@@ -180,6 +252,15 @@ async def upload_prices(watch_remnants, campaign_id, market_token):
 
     Returns:
         list: сформированный прайс-лист.
+
+    Examples:
+        >>> import asyncio
+        >>> asyncio.run(upload_prices([{'Код': '123', 'Цена': "5'990.00 руб."}], '123', 'token'))
+        [{'id': '123', 'price': {'value': 5990, ...}}]
+        >>> asyncio.run(upload_prices(None, 'invalid', 'token'))
+        Traceback (most recent call last):
+        ...
+        requests.exceptions.HTTPError: 401 Client Error: Unauthorized
     """
     offer_ids = get_offer_ids(campaign_id, market_token)
     prices = create_prices(watch_remnants, offer_ids)

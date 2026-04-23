@@ -20,7 +20,7 @@ def get_product_list(last_id, client_id, seller_token):
         seller_token (_type_): Токен продавца, загружается из .env.
 
     Returns:
-        list: Cписок товаров магазина озон.
+        list: Cписок ассортимента c магазина озон.
 
     Examples:
         >>> get_product_list('', '1234', '5678')
@@ -220,7 +220,7 @@ def create_stocks(watch_remnants, offer_ids):
 
 
 def create_prices(watch_remnants, offer_ids):
-    """формирование прайс-листа.
+    """Формирование прайс-листа.
 
     Args:
         watch_remnants (list): список остатков часов.
