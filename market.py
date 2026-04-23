@@ -30,6 +30,16 @@ def get_product_list(page, campaign_id, access_token):
 
 
 def update_stocks(stocks, campaign_id, access_token):
+    """Обновить остатки
+
+    Args:
+        stocks (list): позиция из сформированного ассоримента товаров.
+        campaign_id (str): идентификатор кампании (магазина) продавца.
+        access_token (str): API-Key-токен Яндекс Маркета.
+
+    Returns:
+        list: Ответ сервера о выполнении операции.
+    """
     endpoint_url = "https://api.partner.market.yandex.ru/"
     headers = {
         "Content-Type": "application/json",
@@ -62,7 +72,15 @@ def update_price(prices, campaign_id, access_token):
 
 
 def get_offer_ids(campaign_id, market_token):
-    """Получить артикулы товаров Яндекс маркета"""
+    """Получить артикулы товаров яндекс-маркета.
+
+    Args:
+        campaign_id (str): идентификатор кампании (магазина) продавца.
+        market_token (str): API-Key-токен Яндекс Маркета.
+
+    Returns:
+        list: список артикулов товаров SKU Яндекс Маркета.
+    """
     page = ""
     product_list = []
     while True:
@@ -78,6 +96,16 @@ def get_offer_ids(campaign_id, market_token):
 
 
 def create_stocks(watch_remnants, offer_ids, warehouse_id):
+    """Сформировать текущий ассортимент товаров.
+
+    Args:
+        watch_remnants (list): список остатков часов.
+        offer_ids (list): список артикулов товаров SKU Яндекс Маркета.
+        warehouse_id (str): идентификатор ассортимента (FBS или DBS) из .env.
+
+    Returns:
+        list: сформированный ассортимент товаров.
+    """
     # Уберем то, что не загружено в market
     stocks = list()
     date = str(datetime.datetime.utcnow().replace(microsecond=0).isoformat() + "Z")
@@ -143,6 +171,16 @@ def create_prices(watch_remnants, offer_ids):
 
 
 async def upload_prices(watch_remnants, campaign_id, market_token):
+    """формирование прайс-листа.
+
+    Args:
+        watch_remnants (list): список остатков часов.
+        campaign_id (str): идентификатор кампании (магазина) продавца.
+        market_token (str): API-Key-токен Яндекс Маркета.
+
+    Returns:
+        list: сформированный прайс-лист.
+    """
     offer_ids = get_offer_ids(campaign_id, market_token)
     prices = create_prices(watch_remnants, offer_ids)
     for some_prices in list(divide(prices, 500)):
@@ -198,3 +236,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+#"""Получить артикулы товаров Яндекс маркета"""

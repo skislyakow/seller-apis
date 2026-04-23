@@ -49,11 +49,11 @@ def get_product_list(last_id, client_id, seller_token):
 
 
 def get_offer_ids(client_id, seller_token):
-    """Получить артикулы товаров магазина озон
+    """Получить артикулы товаров магазина озон.
 
     Args:
-        client_id (str): ID клиента, загружается из .env
-        seller_token (str): Токен продавца, загружается из .env
+        client_id (str): ID клиента, загружается из .env.
+        seller_token (str): Токен продавца, загружается из .env.
 
     Returns:
         list: список артикулов товаров магазина озон.
@@ -122,7 +122,7 @@ def update_stocks(stocks: list, client_id, seller_token):
         seller_token (str): Токен продавца, загружается из .env.
 
     Returns:
-        list: Ответ сервера о выполнении операции
+        list: Ответ сервера о выполнении операции.
 
     Examples:
         >>> update_stocks([{"offer_id": "123", "stock": 10}], '1234', 'token')
@@ -220,7 +220,7 @@ def create_stocks(watch_remnants, offer_ids):
 
 
 def create_prices(watch_remnants, offer_ids):
-    """формирование прайс-листа
+    """формирование прайс-листа.
 
     Args:
         watch_remnants (list): список остатков часов.
