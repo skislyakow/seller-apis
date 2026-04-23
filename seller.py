@@ -12,7 +12,24 @@ logger = logging.getLogger(__file__)
 
 
 def get_product_list(last_id, client_id, seller_token):
-    """Получить список товаров магазина озон"""
+    """Получить список товаров магазина озон.
+
+    Args:
+        last_id (str): Идентификатор последнего ID товара, по умолчанию ''.
+        client_id (_type_): ID клиента, загружается из .env.
+        seller_token (_type_): Токен продавца, загружается из .env.
+
+    Returns:
+        list: Cписок товаров магазина озон.
+
+    Examples:
+        >>> get_product_list('', '1234', '5678')
+        [{'items': {...}, 'total': {...}}]
+        >>> get_product_list('', 'invalid', 'token')
+        Traceback (most recent call last):
+        ...
+        requests.exceptions.HTTPError: 401 Client Error: Unauthorized
+    """
     url = "https://api-seller.ozon.ru/v2/product/list"
     headers = {
         "Client-Id": client_id,
@@ -32,7 +49,23 @@ def get_product_list(last_id, client_id, seller_token):
 
 
 def get_offer_ids(client_id, seller_token):
-    """Получить артикулы товаров магазина озон"""
+    """Получить артикулы товаров магазина озон
+
+    Args:
+        client_id (str): ID клиента, загружается из .env
+        seller_token (str): Токен продавца, загружается из .env
+
+    Returns:
+        list: список артикулов товаров магазина озон.
+
+    Examples:
+        >>> get_offer_ids('1234', '5678')
+        ['1', '2', '3', '4', '5']
+         >>> get_offer_ids('invalid', 'token')
+        Traceback (most recent call last):
+        ...
+        requests.exceptions.HTTPError: 401 Client Error: Unauthorized
+    """
     last_id = ""
     product_list = []
     while True:
@@ -49,7 +82,26 @@ def get_offer_ids(client_id, seller_token):
 
 
 def update_price(prices: list, client_id, seller_token):
-    """Обновить цены товаров"""
+    """Обновление прайс-листа на сайте озон.
+
+    Args:
+        prices (list): сформированный прайс-лист.
+        client_id (str): ID клиента, загружается из .env.
+        seller_token (str): Токен продавца, загружается из .env.
+
+    Returns:
+        list: Ответ сервера о выполнении операции.
+
+    Examples:
+        >>> update_price([{"offer_id": "123", "price": "599"}], '123', 'token')
+        {'code': 0, 'message': ''}
+        >>> update_price([], '1234', 'token')
+        {'code': 400, 'message': 'Prices not passed'}
+        >>> update_price([{"offer_id": "123"}], 'invalid', 'token')
+        Traceback (most recent call last):
+        ...
+        requests.exceptions.HTTPError: 401 Client Error: Unauthorized
+    """
     url = "https://api-seller.ozon.ru/v1/product/import/prices"
     headers = {
         "Client-Id": client_id,
@@ -62,7 +114,26 @@ def update_price(prices: list, client_id, seller_token):
 
 
 def update_stocks(stocks: list, client_id, seller_token):
-    """Обновить остатки"""
+    """Обновить остатки
+
+    Args:
+        stocks (list): позиция из сформированного ассоримента товаров.
+        client_id (str): ID клиента, загружается из .env.
+        seller_token (str): Токен продавца, загружается из .env.
+
+    Returns:
+        list: Ответ сервера о выполнении операции
+
+    Examples:
+        >>> update_stocks([{"offer_id": "123", "stock": 10}], '1234', 'token')
+        {'code': 0, 'message': ''}
+        >>> update_stocks([], '1234', 'token')
+        {'code': 400, 'message': 'Stocks not passed'}
+        >>> update_stocks([{"offer_id": "123"}], 'invalid', 'token')
+        Traceback (most recent call last):
+        ...
+        requests.exceptions.HTTPError: 401 Client Error: Unauthorized
+    """
     url = "https://api-seller.ozon.ru/v1/product/import/stocks"
     headers = {
         "Client-Id": client_id,
@@ -75,7 +146,21 @@ def update_stocks(stocks: list, client_id, seller_token):
 
 
 def download_stock():
-    """Скачать файл ostatki с сайта casio"""
+    """Скачать файл ostatki с сайта casio.
+
+    Returns:
+        list: список остатков часов.
+
+    Examples:
+        >>> download_stock()
+        [{'Код': 69791, 'Наименование товара': 'Украшение для дисплеев 219RU',
+        'Изображение': 'Показать', 'Цена': '550.00 руб.',
+        'Количество': '>10', 'Заказ': ''}]
+         >>> download_stock()
+        Traceback (most recent call last):
+        ...
+        requests.exceptions.ConnectionError: Failed to establish a new conn...
+    """
     # Скачать остатки с сайта
     casio_url = "https://timeworld.ru/upload/files/ostatki.zip"
     session = requests.Session()
@@ -96,6 +181,25 @@ def download_stock():
 
 
 def create_stocks(watch_remnants, offer_ids):
+    """Сформировать текущий ассортимент товаров.
+
+    Args:
+        watch_remnants (list): список остатков часов.
+        offer_ids (list): список артикулов товаров магазина озон.
+
+    Returns:
+        list: сформированный ассортимент товаров.
+
+    Examples:
+        >>> create_stocks([{'Код': '123', 'Количество': '>10'}], ['123'])
+        [{'offer_id': '123', 'stock': 100}]
+        >>> create_stocks([{'Код': '123', 'Количество': '>10'}], [])
+        []
+        >>> create_stocks(None, ['123'])
+        Traceback (most recent call last):
+        ...
+        TypeError: 'NoneType' object is not iterable
+    """
     # Уберем то, что не загружено в seller
     stocks = []
     for watch in watch_remnants:
@@ -116,6 +220,23 @@ def create_stocks(watch_remnants, offer_ids):
 
 
 def create_prices(watch_remnants, offer_ids):
+    """формирование прайс-листа
+
+    Args:
+        watch_remnants (list): список остатков часов.
+        offer_ids (list): список артикулов товаров магазина озон.
+
+    Returns:
+        list: сформированный прайс-лист.
+
+    Examples:
+        >>> create_prices([{'Код': '123', 'Цена': "5'990.00 руб."}], ['123'])
+        [{'offer_id': '123', 'price': '5900', ...}]
+        >>> create_prices(None, ['123'])
+        Traceback (most recent call last):
+        ...
+        TypeError: 'NoneType' object is not iterable
+    """
     prices = []
     for watch in watch_remnants:
         if str(watch.get("Код")) in offer_ids:
@@ -140,18 +261,38 @@ def price_conversion(price: str) -> str:
         str: Выходной формат цены.
 
     Examples:
-        >>> price_conversion('5'990.00 руб.')
+        >>> price_conversion("5'990.00 руб.")
         5900
-        >>> price_conversion('some_price')
-        ''
+        >>> price_conversion(123)
+        Traceback (most recent call last):
+        ...
+        AttributeError: 'int' object has no attribute 'split'
     """
-    return re.sub("[^0-9]", "", price.split(".")[0])    
+    return re.sub("[^0-9]", "", price.split(".")[0])
 
 
 def divide(lst: list, n: int):
-    """Разделить список lst на части по n элементов"""
+    """Разделить список lst на части по n элементов
+
+    Args:
+        lst (list): список который необходимо разделить на части.
+        n (int): делитель для списка, количество элементов.
+
+    Yields:
+        list: разделенный список по n-элементов.
+
+    Examples:
+        >>> list(divide([1, 2, 3, 4, 5], 2))
+        [[1, 2], [3, 4], [5]]
+        >>> list(divide([], 2))
+        []
+        >>> list(divide([1, 2, 3], 0))
+        Traceback (most recent call last):
+        ...
+        ZeroDivisionError: division by zero
+    """
     for i in range(0, len(lst), n):
-        yield lst[i : i + n]
+        yield lst[i:i+n]
 
 
 async def upload_prices(watch_remnants, client_id, seller_token):
@@ -196,5 +337,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
