@@ -12,12 +12,12 @@ logger = logging.getLogger(__file__)
 
 
 def get_product_list(last_id, client_id, seller_token):
-    """Получить список товаров магазина озон.
+    """Получить список товаров магазина Озон.
 
     Args:
-        last_id (str): Идентификатор последнего ID товара, по умолчанию ''.
-        client_id (_type_): ID клиента, загружается из .env.
-        seller_token (_type_): Токен продавца, загружается из .env.
+        last_id (str): Идентификатор последнего товара.
+        client_id (str): ID клиента.
+        seller_token (str): API-токен продавца.
 
     Returns:
         list: Cписок ассортимента c магазина озон.
@@ -52,11 +52,11 @@ def get_offer_ids(client_id, seller_token):
     """Получить артикулы товаров магазина озон.
 
     Args:
-        client_id (str): ID клиента, загружается из .env.
-        seller_token (str): Токен продавца, загружается из .env.
+        client_id (str): ID клиента.
+        seller_token (str): API-токен продавца.
 
     Returns:
-        list: список артикулов товаров магазина озон.
+        list: список артикулов товаров.
 
     Examples:
         >>> get_offer_ids('1234', '5678')
@@ -82,12 +82,12 @@ def get_offer_ids(client_id, seller_token):
 
 
 def update_price(prices: list, client_id, seller_token):
-    """Обновление прайс-листа на сайте озон.
+    """Обновление прайс-листа на сайте Озон.
 
     Args:
         prices (list): сформированный прайс-лист.
-        client_id (str): ID клиента, загружается из .env.
-        seller_token (str): Токен продавца, загружается из .env.
+        client_id (str): ID клиента.
+        seller_token (str): API-токен продавца.
 
     Returns:
         list: Ответ сервера о выполнении операции.
@@ -114,12 +114,12 @@ def update_price(prices: list, client_id, seller_token):
 
 
 def update_stocks(stocks: list, client_id, seller_token):
-    """Обновить остатки
+    """Обновить остатки на площадке Озон.
 
     Args:
-        stocks (list): позиция из сформированного ассоримента товаров.
-        client_id (str): ID клиента, загружается из .env.
-        seller_token (str): Токен продавца, загружается из .env.
+        stocks (list): позиции остатков товаров.
+        client_id (str): ID клиента.
+        seller_token (str): API-токен продавца.
 
     Returns:
         list: Ответ сервера о выполнении операции.
@@ -185,7 +185,7 @@ def create_stocks(watch_remnants, offer_ids):
 
     Args:
         watch_remnants (list): список остатков часов.
-        offer_ids (list): список артикулов товаров магазина озон.
+        offer_ids (list): список артикулов товаров.
 
     Returns:
         list: сформированный ассортимент товаров.
@@ -220,11 +220,11 @@ def create_stocks(watch_remnants, offer_ids):
 
 
 def create_prices(watch_remnants, offer_ids):
-    """Формирование прайс-листа.
+    """Подготовка прайс-листа.
 
     Args:
         watch_remnants (list): список остатков часов.
-        offer_ids (list): список артикулов товаров магазина озон.
+        offer_ids (list): список артикулов товаров магазина Озон.
 
     Returns:
         list: сформированный прайс-лист.

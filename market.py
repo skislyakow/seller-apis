@@ -11,13 +11,13 @@ logger = logging.getLogger(__file__)
 
 
 def get_product_list(page, campaign_id, access_token):
-    """Получить список товаров магазина Яндекс Маркета.
+    """Получить список товаров Яндекс Маркета.
     Args:
-        page (str): Токен страницы для пагинации, по умолчанию ''.
-        campaign_id (str): Идентификатор кампании (магазина) продавца.
+        page (str): токен страницы для пагинации.
+        campaign_id (str): идентификатор кампании продавца.
         access_token (str): API-токен Яндекс Маркета.
     Returns:
-        list: Список ассортимента с Яндекс Маркета.
+        list: список ассортимента с Яндекс Маркета.
     Examples:
         >>> get_product_list('', '123', 'token')
         {'offerMappingEntries': [...], 'paging': {'nextPageToken': '...'}}
@@ -45,7 +45,7 @@ def get_product_list(page, campaign_id, access_token):
 
 
 def update_stocks(stocks, campaign_id, access_token):
-    """Обновить остатки
+    """Обновить остатки на Яндекс Маркете.
 
     Args:
         stocks (list): позиция из сформированного ассоримента товаров.
@@ -56,7 +56,11 @@ def update_stocks(stocks, campaign_id, access_token):
         list: Ответ сервера о выполнении операции.
 
     Examples:
-        >>> update_stocks([{"sku": "123", "items": [{"count": 10, "type": "FIT"}]}], '123', 'token')
+        >>> update_stocks(
+                [
+                    {"sku": "123", "items": [{"count": 10, "type": "FIT"}]}
+                ], '123', 'token'
+            )
         {'code': 0, 'message': ''}
         >>> update_stocks([], '123', 'token')
         {'code': 400, 'message': 'Stocks not passed'}
@@ -80,15 +84,19 @@ def update_price(prices, campaign_id, access_token):
     """Обновление прайс-листа на сайте Яндекс Маркет.
 
     Args:
-        prices (list): сформированный прайс-лист.
-        campaign_id (str): идентификатор кампании (магазина) продавца.
-        access_token (str): API-Key-токен Яндекс Маркета.
+        prices (list): сформированный прайс-лист для обновления.
+        campaign_id (str): идентификатор кампании продавца.
+        access_token (str): API-токен Яндекс Маркета.
 
     Returns:
         list: Ответ сервера о выполнении операции.
 
     Examples:
-        >>> update_price([{"id": "123", "price": {"value": 5900, "currencyId": "RUR"}}], '123', 'token')
+        >>> update_price(
+                [
+                    {"id": "12", "price": {"value": 5900, "currencyId": "RUR"}}
+                ], '123', 'token'
+            )
         {'code': 0, 'items': [...]}
         >>> update_price([], 'invalid', 'token')
         Traceback (most recent call last):
@@ -111,11 +119,11 @@ def update_price(prices, campaign_id, access_token):
 
 
 def get_offer_ids(campaign_id, market_token):
-    """Получить артикулы товаров яндекс-маркета.
+    """Получить артикулы товаров Яндекс Маркета.
 
     Args:
-        campaign_id (str): идентификатор кампании (магазина) продавца.
-        market_token (str): API-Key-токен Яндекс Маркета.
+        campaign_id (str): идентификатор кампании продавца.
+        market_token (str): API-токен Яндекс Маркета.
 
     Returns:
         list: список артикулов товаров SKU Яндекс Маркета.
@@ -148,14 +156,16 @@ def create_stocks(watch_remnants, offer_ids, warehouse_id):
     Args:
         watch_remnants (list): список остатков часов.
         offer_ids (list): список артикулов товаров SKU Яндекс Маркета.
-        warehouse_id (str): идентификатор ассортимента (FBS или DBS) из .env.
+        warehouse_id (str): идентификатор склада (FBS или DBS)
 
     Returns:
         list: сформированный ассортимент товаров.
 
     Examples:
-        >>> create_stocks([{'Код': '123', 'Количество': '>10'}], ['123'], 'wh_123')
-        [{'sku': '123', 'warehouseId': 'wh_123', 'items': [{'count': 100, ...}]}]
+        >>> create_stocks(
+                [{'Код': '12', 'Количество': '>10'}], ['123'], 'wh_123'
+            )
+        [{'sku': '12', 'warehouseId': 'wh_12', 'items': [{'count': 100, ...}]}]
         >>> create_stocks(None, ['123'], 'wh_123')
         Traceback (most recent call last):
         ...
@@ -163,7 +173,9 @@ def create_stocks(watch_remnants, offer_ids, warehouse_id):
     """
     # Уберем то, что не загружено в market
     stocks = list()
-    date = str(datetime.datetime.utcnow().replace(microsecond=0).isoformat() + "Z")
+    date = str(
+        datetime.datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+    )
     for watch in watch_remnants:
         if str(watch.get("Код")) in offer_ids:
             count = str(watch.get("Количество"))
@@ -243,7 +255,7 @@ def create_prices(watch_remnants, offer_ids):
 
 
 async def upload_prices(watch_remnants, campaign_id, market_token):
-    """формирование прайс-листа.
+    """формирование прайс-листа и загрузка в Яндекс маркет.
 
     Args:
         watch_remnants (list): список остатков часов.
@@ -255,7 +267,11 @@ async def upload_prices(watch_remnants, campaign_id, market_token):
 
     Examples:
         >>> import asyncio
-        >>> asyncio.run(upload_prices([{'Код': '123', 'Цена': "5'990.00 руб."}], '123', 'token'))
+        >>> asyncio.run(
+                upload_prices(
+                    [{'Код': '123', 'Цена': "5'990.00 руб."}], '123', 'token'
+                )
+            )
         [{'id': '123', 'price': {'value': 5990, ...}}]
         >>> asyncio.run(upload_prices(None, 'invalid', 'token'))
         Traceback (most recent call last):
@@ -269,7 +285,9 @@ async def upload_prices(watch_remnants, campaign_id, market_token):
     return prices
 
 
-async def upload_stocks(watch_remnants, campaign_id, market_token, warehouse_id):
+async def upload_stocks(
+        watch_remnants, campaign_id, market_token, warehouse_id
+):
     offer_ids = get_offer_ids(campaign_id, market_token)
     stocks = create_stocks(watch_remnants, offer_ids, warehouse_id)
     for some_stock in list(divide(stocks, 2000)):
@@ -317,5 +335,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-#"""Получить артикулы товаров Яндекс маркета"""
